@@ -8,12 +8,14 @@ public:
     virtual void func() = 0;
 };
 
+
 class InterfaceObserver
 {
 public:
     virtual ~InterfaceObserver() {};
-    virtual void approveNotifications() = 0;
+    virtual void approveNotification() = 0;
 };
+
 
 class InterfaceObservable
 {
@@ -26,7 +28,7 @@ public:
 class B : public InterfaceB
 {
 public:
-    B(size_t id_) :
+    explicit B(size_t id_) :
         id(id_),
         observer(nullptr)
     {}
@@ -35,7 +37,7 @@ public:
     {
         std::cout << "Class B, ID " << id << std::endl;
         if (observer != nullptr) {
-            observer ->approveNotifications();
+            observer ->approveNotification();
         }
     }
 
@@ -54,11 +56,15 @@ enum Patterns { Mediator, Proxy, Observer};
 template <Patterns Type>
 class C {};
 
+
+/*
+ * Выбирает следующий объект класса B и вызывает у него нужную функцию
+ */
 template <>
 class C<Patterns::Mediator> : public InterfaceB
 {
 public:
-    C(std::vector<B*>& objects) :
+    explicit C(std::vector<B*>& objects) :
         b_objects(objects)
     {}
 
@@ -68,17 +74,17 @@ public:
         b_objects[counter++]->func();
         counter %= b_objects.size();
     }
-
 private:
     std::vector<B*> b_objects;
     int counter = 0;
 };
 
+
 template <>
 class C<Patterns::Proxy> : public InterfaceB
 {
 public:
-    C(InterfaceB* b_object_) :
+    explicit C(InterfaceB* b_object_) :
         b_object(b_object_)
     {}
 
@@ -92,18 +98,19 @@ private:
     InterfaceB* b_object;
 };
 
+
 /*
  * При создании Observer к классу Б добавляется слушатель. При изменении объекта класса B (вызове функции func()),
  * он уведомляет Observer
  *
- * Подтверждение получения сообщения (approveNotifications()) у обсервера состоит в том, что он запрашивает подтверждение
+ * Подтверждение получения сообщения (approveNotification()) у обсервера состоит в том, что он запрашивает подтверждение
  * получения сообщения у всех своих слушателей.
  */
 template <>
 class C<Patterns::Observer> : public InterfaceObserver, public InterfaceObservable
 {
 public:
-    C(B* observedTarget_) :
+    explicit C(B* observedTarget_) :
         observedTarget(observedTarget_)
     {
         observedTarget->addObserver(this);
@@ -114,11 +121,11 @@ public:
         subscribers.push_back(newSubscriber);
     }
 
-    void approveNotifications() override
+    void approveNotification() override
     {
         std::cout << "Observer is notifying every subscriber" << std::endl;
-        for (size_t i = 0;i < subscribers.size();++i) {
-            subscribers[i]->approveNotifications();
+        for (auto &subscriber : subscribers) {
+            subscriber->approveNotification();
         }
     }
 private:
@@ -134,10 +141,14 @@ public:
     virtual void callServant(InterfaceB* servant) = 0;
 };
 
+/*
+ * Экземпляр класса умеет подзывать официанта (изначально, это экземпляр класс B)
+ * И как слушатель, умеет подтверждать получение уведомления
+ */
 class A : public InterfaceA, public InterfaceObserver
 {
 public:
-    A(size_t id_) :
+    explicit A(size_t id_) :
         id(id_)
     {}
     void callServant(InterfaceB* servant) override
@@ -146,7 +157,7 @@ public:
         servant ->func();
     }
 
-    void approveNotifications() override
+    void approveNotification() override
     {
         std::cout << "Notification recieved ID " << id << std::endl;
     }
