@@ -11,7 +11,8 @@ struct Vertex : public Branch {
 };
 
 
-class EmptyClass {};
+class EmptyClass {
+};
 
 // линейная иерархия
 template<typename Arr, template<typename Root, typename Branch> typename Vertex>
@@ -27,23 +28,22 @@ struct Bamboo<EmptyTypeList, Vertex> : public Vertex<EmptyClass, EmptyClass> {
 
 
 //Основная иерархия
-template<typename Arr, typename StoredArr, int remainingSize, int branchNumber,
-        template<typename Root, typename Branch> typename Vertex>
+template<typename Arr, typename StoredArr, int remainingSize,
+        int branchNumber, template<typename Root, typename Branch> typename Vertex>
 struct Hierarchy;
-
 
 template<typename Head, typename ...Tail, typename ...StoredArr, int remainingSize,
         int branchNumber, template<typename Root, typename Branch> typename Vertex>
 struct Hierarchy<TypeList<Head, Tail...>, TypeList<StoredArr...>, remainingSize, branchNumber, Vertex> :
-        public Hierarchy<TypeList<Tail...>, TypeList<Head, StoredArr...>, remainingSize - 1, branchNumber, Vertex>{};
+        public Hierarchy<TypeList<Tail...>, TypeList<Head, StoredArr...>, remainingSize - 1, branchNumber, Vertex> {
+};
 
-template<typename Head, typename ... Tail, typename ...StoredArr, int branchNumber,
-        template<typename Root, typename Branch> class Vertex>
+template<typename Head, typename ... Tail, typename ...StoredArr,
+        int branchNumber, template<typename Root, typename Branch> class Vertex>
 struct Hierarchy<TypeList<Head, Tail...>, TypeList<StoredArr...>, 0, branchNumber, Vertex> :
-public Bamboo<TypeList<StoredArr...>, Vertex>,
-public Hierarchy<TypeList<Head, Tail...> EmptyTypeList,
-        branchNumber + 1, Fibonacci<branchNumber + 1>::number + 1, Vertex>
-{
+        public Bamboo<TypeList<StoredArr...>, Vertex>,
+        public Hierarchy<TypeList<Head, Tail...>, EmptyTypeList,
+                branchNumber + 1, Fibonacci<branchNumber + 1>::number + 1, Vertex> {
 };
 
 template<typename ...StoredArr, int remainingSize, int branchNumber,
