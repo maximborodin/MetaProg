@@ -15,5 +15,5 @@ struct Fibonacci<1>
 template<>
 struct Fibonacci<0>
 {
-    static const int number = 1;
+    static const int number = 0;
 };
