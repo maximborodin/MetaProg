@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "typelist.h"
 #include "fibonacciNumber.h"
 
@@ -28,6 +29,10 @@ struct Bamboo<EmptyTypeList, Vertex> : public Vertex<EmptyClass, EmptyClass> {
 
 
 //Основная иерархия
+//Arr - еще не обработанный список типов
+//StoredArr - обработанный список типов
+//remainingSize - количество вершин, которое осталось добавить в данную ветку
+//branchNumber - номер ветки
 template<typename Arr, typename StoredArr, int remainingSize,
         int branchNumber, template<typename Root, typename Branch> typename Vertex>
 struct Hierarchy;
@@ -47,7 +52,7 @@ struct Hierarchy<TypeList<Head, Tail...>, TypeList<StoredArr...>, 0, branchNumbe
 };
 
 template<typename ...StoredArr, int remainingSize, int branchNumber,
-        template<typename Root, typename Branch> class Unit>
+        template<typename Root, typename Branch> class Vertex>
 struct Hierarchy<EmptyTypeList, TypeList<StoredArr...>, remainingSize, branchNumber, Vertex> :
         public Bamboo<TypeList<StoredArr...>, Vertex> {
 };
@@ -55,4 +60,6 @@ struct Hierarchy<EmptyTypeList, TypeList<StoredArr...>, remainingSize, branchNum
 
 int main() {
     // std::cout << Fibonacci<5>::number;
+    typedef TypeList<int, bool, char, std::string> t_list;
+    Hierarchy<t_list, EmptyTypeList, 1, 0, Vertex> hierarchy;
 }
